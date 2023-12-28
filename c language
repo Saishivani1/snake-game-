@@ -1,0 +1,144 @@
+#include <stdio.h>
+#include <conio.h>
+#include <stdlib.h>
+#include <windows.h>
+
+int i, j, height = 20, width = 20;
+int gameover, score;
+int x, y, fruitx, fruity, flag;
+
+// Function to generate random fruit coordinates
+int length;
+int tailX[100], tailY[100]; // Snake coordinates
+
+void setup() {
+    gameover = 0; // Game is not over
+    x = height / 2; // Initial position of the snake
+    y = width / 2;
+    length = 0; // Initialize the length of the snake
+    score = 0; // Initialize the score
+    fruit();
+}
+
+void draw() {
+    system("cls"); // Clear the console window
+    for (i = 0; i < height; i++) {
+        for (j = 0; j < width; j++) {
+            if (i == 0 || i == height - 1 || j == 0 || j == width - 1) {
+                printf("#"); // Draw walls
+            } else {
+                if (i == x && j == y) {
+                    printf("0"); // Draw the snake head
+                } else if (i == fruitx && j == fruity) {
+                    printf("*"); // Draw the fruit
+                } else {
+                    int isPrinted = 0;
+                    for (int k = 0; k < length; k++) {
+                        if (i == tailX[k] && j == tailY[k]) {
+                            printf("o"); // Draw the snake body
+                            isPrinted = 1;
+                        }
+                    }
+                    if (isPrinted == 0) {
+                        printf(" ");
+                    }
+                }
+            }
+        }
+        printf("\n");
+    }
+    printf("Score:%d", score);
+    printf("\n");
+    printf("Press X to quit the game");
+}
+
+void input() {
+    if (_kbhit()) {
+        switch (_getch()) {
+            case 'a':
+                flag = 1;
+                break;
+            case 's':
+                flag = 2;
+                break;
+            case 'd':
+                flag = 3;
+                break;
+            case 'w':
+                flag = 4;
+                break;
+            case 'x':
+                gameover = 1;
+                break;
+        }
+    }
+}
+
+void algorithm() {
+    Sleep(0.01);
+    int prevX = tailX[0];
+    int prevY = tailY[0];
+    int prev2X, prev2Y;
+    tailX[0] = x;
+    tailY[0] = y;
+    for (int i = 1; i < length; i++) {
+        prev2X = tailX[i];
+        prev2Y = tailY[i];
+        tailX[i] = prevX;
+        tailY[i] = prevY;
+        prevX = prev2X;
+        prevY = prev2Y;
+    }
+    switch (flag) {
+        case 1:
+            y--;
+            break;
+        case 2:
+            x++;
+            break;
+        case 3:
+            y++;
+            break;
+        case 4:
+            x--;
+            break;
+        default:
+            break;
+    }
+    if (x < 0 || x > height || y < 0 || y > width) {
+        gameover = 1; // If snake goes out of bounds, end the game
+    }
+    for (int i = 0; i < length; i++) {
+        if (tailX[i] == x && tailY[i] == y) {
+            gameover = 1; // If snake collides with itself, end the game
+        }
+    }
+    if (x == fruitx && y == fruity) {
+        score += 10; // Increase score when the snake eats fruit
+        fruit(); // Generate new fruit coordinates
+        length++; // Increase the length of the snake
+    }
+}
+
+void fruit() {
+    fruitx = rand() % height;
+    fruity = rand() % width;
+    if (fruitx == 0 || fruitx == height - 1 || fruity == 0 || fruity == width - 1) {
+        fruit(); // Regenerate fruit coordinates if it overlaps with the walls
+    }
+}
+
+int main() {
+    int m, n;
+
+    // Function call
+    setup();
+    while (!gameover) {
+        // Function call
+        draw();
+        input();
+        // Function call
+        algorithm();
+    }
+    return 0;
+}
