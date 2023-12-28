@@ -1,0 +1,111 @@
+import random
+import time
+
+height, width = 20, 20
+tailX, tailY = [0] * 100, [0] * 100
+length = 0
+x, y, fruitX, fruitY, score = 0, 0, 0, 0, 0
+gameover = False
+flag = 0  # 1: Left, 2: Down, 3: Right, 4: Up
+
+
+def setup():
+    global gameover, x, y, length, score
+    gameover = False
+    x, y = height // 2, width // 2
+    length, score = 0, 0
+    fruit()
+
+
+def draw():
+    global x, y, length, score
+    for i in range(height):
+        for j in range(width):
+            if i == 0 or i == height - 1 or j == 0 or j == width - 1:
+                print("#", end="")
+            else:
+                if i == x and j == y:
+                    print("0", end="")
+                elif i == fruitX and j == fruitY:
+                    print("*", end="")
+                else:
+                    is_printed = False
+                    for k in range(length):
+                        if i == tailX[k] and j == tailY[k]:
+                            print("o", end="")
+                            is_printed = True
+                    if not is_printed:
+                        print(" ", end="")
+        print()
+    print("Score:", score)
+    print("Press X to quit the game")
+
+
+def input_():
+    global flag, gameover
+    key = input()
+    if key:
+        ch = key[0]
+        if ch == 'a':
+            flag = 1
+        elif ch == 's':
+            flag = 2
+        elif ch == 'd':
+            flag = 3
+        elif ch == 'w':
+            flag = 4
+        elif ch == 'x':
+            gameover = True
+
+
+def algorithm():
+    global x, y, length, score, flag, gameover
+
+    time.sleep(0.1)
+    prevX, prevY = tailX[0], tailY[0]
+    prev2X, prev2Y = 0, 0
+
+    tailX[0], tailY[0] = x, y
+
+    for i in range(1, length):
+        prev2X, prev2Y = tailX[i], tailY[i]
+        tailX[i], tailY[i] = prevX, prevY
+        prevX, prevY = prev2X, prev2Y
+
+    if flag == 1:
+        y -= 1
+    elif flag == 2:
+        x += 1
+    elif flag == 3:
+        y += 1
+    elif flag == 4:
+        x -= 1
+
+    if x < 0 or x >= height or y < 0 or y >= width:
+        gameover = True
+
+    for i in range(length):
+        if tailX[i] == x and tailY[i] == y:
+            gameover = True
+
+    if x == fruitX and y == fruitY:
+        score += 10
+        fruit()
+        length += 1
+
+
+def fruit():
+    global fruitX, fruitY
+    fruitX, fruitY = random.randint(1, height - 2), random.randint(1, width - 2)
+
+
+def main():
+    setup()
+    while not gameover:
+        draw()
+        input_()
+        algorithm()
+
+
+if __name__ == "__main__":
+    main()
